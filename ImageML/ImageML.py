@@ -1,3 +1,4 @@
+#imports
 import tensorflow as tf
 import keras 
 from keras import optimizers
@@ -21,6 +22,7 @@ from numpy import asarray
 from numpy import save
 from numpy import load
 
+
 fileList=os.listdir("Images")
 #print(fileList)
 
@@ -30,9 +32,11 @@ filesCount=len(fileList)
 
 #analyze images
 try:
+    #load X and Y sets from files
     CaptchaXtrain=load('NpArrays\\data0.npy',allow_pickle=True)
     CaptchaYtrain=load('NpArrays\\sign0.npy',allow_pickle=True)
 except:
+    #if no data and sign files exist, create them from captcha files
     for partNb in range(0,1):
         print(fileNumber)
         print(filesCount)
@@ -49,19 +53,19 @@ except:
 
             gray = cv2.copyMakeBorder(gray, 8, 8, 8, 8, cv2.BORDER_REPLICATE)
 
-            # applying threshold
+            # apply threshold
             thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV, cv2.THRESH_OTSU)[1]
 
-            # creating empty list for holding the coordinates of the letters
+            # create empty list for holding the coordinates of the letters
             letter_image_regions = []
  
-            # finding the contours
+            # find the contours
             contours, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             for contour in contours:
               # Get the rectangle that contains the contour
               (x, y, w, h) = cv2.boundingRect(contour)
         
-              # checking if any counter is too wide
+              # check if any counter is too wide
               # if countour is too wide then there could be two letters joined together or are very close to each other
               if w / h > 1.25:
                 # Split it in half into two letter regions
@@ -122,9 +126,11 @@ print(CaptchaXtrain)
 ##Read JSON data into the datastore variable
 CaptchaY_train=keras.utils.normalize(CaptchaY_train,1)
 try:
+    #try to load trained model
     model = load_model('model.h5')
     print('ok')
 except:
+    #no trained model found, train a new one
     model = keras.models.Sequential() 
     model.add(keras.layers.Flatten())
     model.add(keras.layers.Dense(128,activation='relu'))
@@ -133,7 +139,7 @@ except:
     model.compile('adam','sparse_categorical_crossentropy',['accuracy'])
     model.fit(CaptchaXtrain, np.asarray(CaptchaYtrain), epochs=50)
 
-
+#evaluate
 val_loss,val_acc=model.evaluate(CaptchaXtrain,CaptchaYtrain)
 print(val_loss,val_acc)
 
@@ -143,6 +149,7 @@ print(val_loss,val_acc)
     #datastore=model.to_json()
     #json.dump(datastore, f)
 
+#save model
 model.save('model.h5')
 
 #np.set_printoptions(suppress=True,linewidth=np.nan)
@@ -151,10 +158,10 @@ model.save('model.h5')
 #print(chr(np.argmax(prediction[0])))
 
 #load new image
+#for each number to be rated as a sign try to predict what it is
 for count in range(1,9):
-    filename="C:\\Users\\SL\\source\\repos\\ImageMLLab2\\ImageML\\ImageML\\number"+str(count)+".bmp"
-    #filename="C:\\Users\\SL\\source\\repos\\ImageMLLab2\\ImageML\\ImageML\\number1.bmp"
-    #print(filename)
+    #load image
+    filename="ImageML\\number"+str(count)+".bmp"
     with PIL.Image.open(filename) as image:
         width, height=image.size
 
@@ -163,6 +170,7 @@ for count in range(1,9):
     except IOError: 
         pass
 
+    #some resizing
     out=PIL.Image.Image.convert(image,"P")
     image = image.resize((28,28),PIL.Image.BOX)
 
