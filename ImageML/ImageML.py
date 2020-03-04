@@ -50,10 +50,7 @@ except:
             # grab the base filename as the text
             filename = os.path.basename(captcha_image)
             captcha_text = os.path.splitext(filename)[0]
-
             gray = cv2.copyMakeBorder(gray, 8, 8, 8, 8, cv2.BORDER_REPLICATE)
-
-            # apply threshold
             thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV, cv2.THRESH_OTSU)[1]
 
             # create empty list for holding the coordinates of the letters
@@ -101,7 +98,6 @@ except:
         save('NpArrays\\sign'+str(partNb)+'.npy', CaptchaY_train)
         del CaptchaY_train
 
-print(CaptchaYtrain)
 temp=list()
 #convert nbs and letters to ints to do this backwards use chr(int)
 for iterator in range(0,len(CaptchaYtrain)):
@@ -116,13 +112,6 @@ print(CaptchaXtrain)
 #(x_train,y_train), (x_test,y_test) = mnist.load_data()
 
 
-
-#x_train = keras.utils.normalize(x_train, axis=1)
-#x_test = keras.utils.normalize(x_test, axis=1)
-#print(x_train)
-#print(y_train)
-#y_train
-#np.asarray(CaptchaYtrain)
 ##Read JSON data into the datastore variable
 CaptchaY_train=keras.utils.normalize(CaptchaY_train,1)
 try:
@@ -143,19 +132,10 @@ except:
 val_loss,val_acc=model.evaluate(CaptchaXtrain,CaptchaYtrain)
 print(val_loss,val_acc)
 
-# If the file name exists, write a JSON string into the file.
-# Writing JSON data
-#with open('architecture.json', 'w') as f:
-    #datastore=model.to_json()
-    #json.dump(datastore, f)
-
 #save model
 model.save('model.h5')
 
-#np.set_printoptions(suppress=True,linewidth=np.nan)
-#print(x_train[0])
-#prediction=model.predict([[x_train[0]]])
-#print(chr(np.argmax(prediction[0])))
+
 
 #load new image
 #for each number to be rated as a sign try to predict what it is
